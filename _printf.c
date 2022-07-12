@@ -1,62 +1,80 @@
-#include<stdio.h>
-#include<stdarg.h>
+#include <stdarg.h>
 #include "main.h"
+#include <stdio.h>
 
 /**
- * printf - printf function
- * @*transverse: const char pointer
- * @*s: const char
- * @i: 
- * return: length
- */
+  * _printf - produces output according to a format.
+  * @format: a character string.
+  * Return: number of characters printed(
+  * excluding the null terminator)
+  */
 
+int _printf(const char *format, ...)
+{
+	int count;
+	int total = 0;
+	va_list args;
+	int flag = 0;
 
-int _printf(const char* format,...) 
-{ 
-    char *traverse; 
-    unsigned int i; 
-    char *s; 
+	if (format == NULL)
+		return (0);
 
-    //Module 1: Initializing _printf's arguments 
-    va_list arg; 
-    va_start(arg, format); 
-
-    for(traverse = format; *traverse != '\0'; traverse++) 
-    { 
-        while( *traverse != '%' ) 
-        { 
-            putchar(*traverse);
-            traverse++; 
-        } 
-
-        traverse++; 
-
-        //Module 2: Fetching and executing arguments
-        switch(*traverse)
-        {
-            case 'c' : i = va_arg(arg,int);//Fetch char argument
-                        _putchar(i);
-                        break;
-            case 'd' : i = va_arg(arg,int);//Fetch Dec/Int argument
-                        if(i<0) 
-                        { 
-                            i = -i;
-                            _putchar('-'); 
-                        } 
-                        _puts(convert(i,10));
-                        break; 
-            case 'o': i = va_arg(arg,unsigned int);//Fetch Octal
-                        _puts(convert(i,8));
-                        break;
-            case 's': s = va_arg(arg,char *);//Fetch string
-                        _puts(s);
-                        break;
-            case 'x': i = va_arg(arg,unsigned int);//Fetch Hex
-                        _puts(convert(i,16));
-                        break;
-        }
-    }
-
-    //Module 3: Closing argument list to necessary clean-up
-    va_end(arg); 
+	va_start(args, format);
+	for (count = 0; *(format + count) != '\0'; count++)
+	{
+		if (format[count] == '%')
+		{
+			flag = 1;
+		}
+		else if (flag == 1)
+		{
+			flag = 0;
+			switch (format[count])
+			{
+				case 'c':
+					_putchar(va_arg(args, int));
+					total += 1;
+					break;
+				case 's':
+					total += _print_str(va_arg(args, char *));
+					break;
+				case '%':
+					_putchar('%');
+					total += 1;
+					break;
+				case 'd':
+					total += _print_int((long)(va_arg(args, int)));
+					break;
+				case 'i':
+					total += _print_int((long)(va_arg(args, int)));
+					break;
+				case 'b':
+					total += to_Binary(va_arg(args, int));
+					break;
+				case 'u':
+					total += _print_int(va_arg(args, unsigned int));
+					break;
+				case 'o':
+					total += to_Octal(va_arg(args, int));
+					break;
+				case 'x':
+					total += to_Hexa(va_arg(args, int));
+					break;
+				case 'X':
+					total += to_Hexa(va_arg(args, int));
+					break;
+				default:
+					_putchar('%');
+					_putchar(format[count]);
+					total += 2;
+			}
+		}
+		else
+		{
+			_putchar(format[count]);
+			total += 1;
+		}
+	}
+	va_end(args);
+	return (total);
 }
