@@ -1,49 +1,62 @@
+#include<stdio.h>
+#include<stdarg.h>
 #include "main.h"
-#include <stdio.h>
-#include <stlib.h>
-#include <starg.h>
 
 /**
- * _printf - printf function
- * @format: const char pointer
- * Return: b_len
+ * printf - printf function
+ * @*transverse: const char pointer
+ * @*s: const char
+ * @i: 
+ * return: length
  */
 
-int _printf(const char *format, ...)
-{
-	int (*pfunc)(va_list, flags_t *);
-	const char *p;
-	va_list arguments;
-	flags_t flags = {0, 0, 0};
 
-	register int count = 0;
+int _printf(const char* format,...) 
+{ 
+    char *traverse; 
+    unsigned int i; 
+    char *s; 
 
-	va_start(arguments, format);
-	if (!format || (format[0] == '%' && !format[1]))
-		return (-1);
-	if (format[0] == '%' && format[1] == ' ' && !format[2])
-		return (-1);
-	for (p = format; *p; p++)
-	{
-		if (*p == '%')
-		{
-			p++;
-			if (*p == '%')
-			{
-				count += _putchar('%');
-				continue;
-			}
-			while (get_flag(*p, &flags))
-				p++;
-			pfunc = get_print(*p);
-			count += (pfunc)
-				? pfunc(arguments, &flags)
-				: _printf("%%%c", *p);
-		} else
-			count += _putchar(*p);
-	}
-	_putchar(-1);
-	va_end(arguments);
-	return (count);
+    //Module 1: Initializing _printf's arguments 
+    va_list arg; 
+    va_start(arg, format); 
+
+    for(traverse = format; *traverse != '\0'; traverse++) 
+    { 
+        while( *traverse != '%' ) 
+        { 
+            putchar(*traverse);
+            traverse++; 
+        } 
+
+        traverse++; 
+
+        //Module 2: Fetching and executing arguments
+        switch(*traverse)
+        {
+            case 'c' : i = va_arg(arg,int);//Fetch char argument
+                        _putchar(i);
+                        break;
+            case 'd' : i = va_arg(arg,int);//Fetch Dec/Int argument
+                        if(i<0) 
+                        { 
+                            i = -i;
+                            _putchar('-'); 
+                        } 
+                        _puts(convert(i,10));
+                        break; 
+            case 'o': i = va_arg(arg,unsigned int);//Fetch Octal
+                        _puts(convert(i,8));
+                        break;
+            case 's': s = va_arg(arg,char *);//Fetch string
+                        _puts(s);
+                        break;
+            case 'x': i = va_arg(arg,unsigned int);//Fetch Hex
+                        _puts(convert(i,16));
+                        break;
+        }
+    }
+
+    //Module 3: Closing argument list to necessary clean-up
+    va_end(arg); 
 }
-
